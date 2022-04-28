@@ -9,6 +9,7 @@ from sklearn.utils import shuffle
 import numpy as np
 import math
 import cv2
+import sys
 import os
 
 DATA_DIRECTORY = "./data"
@@ -16,26 +17,32 @@ CLASS = ["interesting", "not"]
 
 SIZE_X = 200
 SIZE_Y = 150
-COLORS = 3
+COLORS = 1
 
-def getData(dir, classes):
+def getData(dir, classes, max_imgs=sys.maxsize):
     images = []
     for c in classes:
         path = os.path.join(dir, c)
         label = c
+        cnt = 0;
         for img in os.listdir(path):
-            try:
-                if COLORS == 1:
-                    cur_img = cv2.imread(os.path.join(path, img), cv2.IMREAD_GRAYSCALE)
-                else:
-                    cur_img = cv2.imread(os.path.join(path, img))
-                cur_img = cv2.resize(cur_img, (SIZE_X, SIZE_Y))
-                if c == "interesting":
-                    images.append([cur_img, 0])
-                else:
-                    images.append([cur_img, 1])
-            except Exception as e:
-                print(e)
+            if cnt < max_imgs:
+                try:
+                    if COLORS == 1:
+                        cur_img = cv2.imread(os.path.join(path, img), cv2.IMREAD_GRAYSCALE)
+                    else:
+                        cur_img = cv2.imread(os.path.join(path, img))
+                    cur_img = cv2.resize(cur_img, (SIZE_X, SIZE_Y))
+                    if c == "interesting":
+                        images.append([cur_img, 0])
+                        cnt += 1
+                    else:
+                        images.append([cur_img, 1])
+                        cnt += 1
+                except Exception as e:
+                    print(e)
+            else:
+                break
     train = []
     test = []
     for i in range(len(images)):
@@ -58,10 +65,10 @@ def split(train, test, percent=0.66):
     
     return x_train, x_test, y_train, y_test
 
-train, test = getData(DATA_DIRECTORY, CLASS)
-x_train, x_test, y_train, y_test, = split(train, test, 0.66)
+train, test = getData(DATA_DIRECTORY, CLASS, 861)
+x_train, x_test, y_train, y_test, = split(train, test, 0.8)
 
-""" self made model
+#""" self made model
 model = Sequential(
     [
         Input(shape=(SIZE_X, SIZE_Y, 1)),
@@ -78,7 +85,7 @@ model = Sequential(
 )
 #"""
 
-#"""
+"""
 base_model = InceptionV3(
     weights=None,
     include_top=False,
