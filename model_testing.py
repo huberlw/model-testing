@@ -36,10 +36,9 @@ def getData(dir, classes, max_imgs=sys.maxsize):
                     cur_img = cv2.resize(cur_img, (SIZE_X, SIZE_Y))
                     if c == "interesting":
                         images.append([cur_img, 0])
-                        cnt += 1
                     else:
                         images.append([cur_img, 1])
-                        cnt += 1
+                    cnt += 1
                 except Exception as e:
                     print(e)
             else:
