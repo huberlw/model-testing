@@ -61,7 +61,7 @@ def split(train, test, percent=0.66):
 train, test = getData(DATA_DIRECTORY, CLASS)
 x_train, x_test, y_train, y_test, = split(train, test, 0.66)
 
-"""
+""" self made model
 model = Sequential(
     [
         Input(shape=(SIZE_X, SIZE_Y, 1)),
