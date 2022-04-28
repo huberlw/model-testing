@@ -6,6 +6,7 @@ from keras.applications.vgg19 import VGG19
 
 import matplotlib.pyplot as plt
 from sklearn.utils import shuffle
+import time
 import numpy as np
 import math
 import cv2
@@ -17,7 +18,7 @@ CLASS = ["interesting", "not"]
 
 SIZE_X = 200
 SIZE_Y = 150
-COLORS = 1
+COLORS = 3
 
 def getData(dir, classes, max_imgs=sys.maxsize):
     images = []
@@ -49,7 +50,7 @@ def getData(dir, classes, max_imgs=sys.maxsize):
         train.append(images[i][0])
         test.append(images[i][1])
 
-    return shuffle(train, test)
+    return shuffle(train, test, random_state=int(time.time()))
 
 def split(train, test, percent=0.66):
     size = len(train)
@@ -68,7 +69,7 @@ def split(train, test, percent=0.66):
 train, test = getData(DATA_DIRECTORY, CLASS, 861)
 x_train, x_test, y_train, y_test, = split(train, test, 0.8)
 
-#""" self made model
+""" self made model
 model = Sequential(
     [
         Input(shape=(SIZE_X, SIZE_Y, 1)),
@@ -85,9 +86,10 @@ model = Sequential(
 )
 #"""
 
-"""
+#"""
 base_model = InceptionV3(
-    weights=None,
+    weights='imagenet',
+    #weights=None,
     include_top=False,
     input_shape=(SIZE_X, SIZE_Y, 3)
 )
@@ -105,7 +107,8 @@ model = Sequential(
 
 """
 base_model = ResNet50(
-    weights=None,
+    weights='imagenet',
+    #weights=None,
     include_top=False,
     input_shape=(SIZE_X, SIZE_Y, 3)
 )
@@ -123,7 +126,8 @@ model = Sequential(
 
 """
 base_model = VGG19(
-    weights=None,
+    weights='imagenet',
+    #weights=None,
     include_top=False,
     input_shape=(SIZE_X, SIZE_Y, 3)
 )
@@ -150,7 +154,8 @@ model.summary()
 history = model.fit(x_train, x_test, epochs=5)
 loss, acc = model.evaluate(y_train, y_test)
 
-title = (f"\nRESULTS:\n\tAccuracy: {round(acc, 3)}, Loss: {round(loss, 3)}\n")
+print("RESULTS:")
+title = (f"Accuracy: {round(acc, 3)}, Loss: {round(loss, 3)}\n")
 print(title)
 
 plt.plot(history.history['accuracy'], label='accuracy')
