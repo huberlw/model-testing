@@ -24,7 +24,7 @@ def getData(dir, classes, max_imgs=sys.maxsize):
     images = []
     for c in classes:
         path = os.path.join(dir, c)
-        label = c
+        label = CLASS.index(c)
         cnt = 0;
         for img in os.listdir(path):
             if cnt < max_imgs:
@@ -32,12 +32,9 @@ def getData(dir, classes, max_imgs=sys.maxsize):
                     if COLORS == 1:
                         cur_img = cv2.imread(os.path.join(path, img), cv2.IMREAD_GRAYSCALE)
                     else:
-                        cur_img = cv2.imread(os.path.join(path, img))
+                        cur_img = cv2.imread(os.path.join(path, img)) 
                     cur_img = cv2.resize(cur_img, (SIZE_X, SIZE_Y))
-                    if c == "interesting":
-                        images.append([cur_img, 0])
-                    else:
-                        images.append([cur_img, 1])
+                    images.append([cur_img, label])
                     cnt += 1
                 except Exception as e:
                     print(e)
