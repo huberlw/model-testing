@@ -12,7 +12,7 @@ import cv2
 import os
 
 DATA_DIRECTORY = "./data"
-CLASS = ["int", "not"]
+CLASS = ["interesting", "not"]
 
 SIZE_X = 200
 SIZE_Y = 150
@@ -30,7 +30,7 @@ def getData(dir, classes):
                 else:
                     cur_img = cv2.imread(os.path.join(path, img))
                 cur_img = cv2.resize(cur_img, (SIZE_X, SIZE_Y))
-                if c == "int":
+                if c == "interesting":
                     images.append([cur_img, 0])
                 else:
                     images.append([cur_img, 1])
