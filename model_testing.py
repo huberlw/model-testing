@@ -6,7 +6,6 @@ from keras.applications.vgg19 import VGG19
 
 import matplotlib.pyplot as plt
 from sklearn.utils import shuffle
-import time
 import numpy as np
 import math
 import cv2
@@ -46,7 +45,7 @@ def getData(dir, classes, max_imgs=sys.maxsize):
         train.append(images[i][0])
         test.append(images[i][1])
 
-    return shuffle(train, test, random_state=int(time.time()))
+    return shuffle(train, test)
 
 def split(train, test, percent=0.66):
     size = len(train)
