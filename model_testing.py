@@ -3,7 +3,6 @@ from keras.models import Sequential
 from keras.applications.inception_v3 import InceptionV3
 import matplotlib.pyplot as plt
 from sklearn.utils import shuffle
-import time
 import numpy as np
 import math
 import cv2
@@ -43,7 +42,7 @@ def getData(dir, classes, max_imgs=sys.maxsize):
         imgs.append(images[i][0])
         targ.append(images[i][1])
 
-    return shuffle(imgs, targ, random_state=int(time.time()))
+    return shuffle(imgs, targ)
 
 def split(data, targ, percent=0.66):
     size = len(data)
