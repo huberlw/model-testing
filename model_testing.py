@@ -1,9 +1,6 @@
-from keras.layers import Input, Conv2D, GlobalMaxPooling2D, MaxPooling2D, Dense, Flatten
+from keras.layers import Input, Conv2D, GlobalMaxPooling2D, MaxPooling2D, Dense, Flatten, Dropout
 from keras.models import Sequential
 from keras.applications.inception_v3 import InceptionV3
-from keras.applications.resnet import ResNet50
-from keras.applications.vgg19 import VGG19
-
 import matplotlib.pyplot as plt
 from sklearn.utils import shuffle
 import time
@@ -40,52 +37,33 @@ def getData(dir, classes, max_imgs=sys.maxsize):
                     print(e)
             else:
                 break
-    train = []
-    test = []
+    imgs = []
+    targ = []
     for i in range(len(images)):
-        train.append(images[i][0])
-        test.append(images[i][1])
+        imgs.append(images[i][0])
+        targ.append(images[i][1])
 
-    return shuffle(train, test, random_state=int(time.time()))
+    return shuffle(imgs, targ, random_state=int(time.time()))
 
-def split(train, test, percent=0.66):
-    size = len(train)
+def split(data, targ, percent=0.66):
+    size = len(data)
     bar = math.floor(size * percent)
     
-    x_train = np.array(train[:bar]) / 255
-    x_train = x_train.reshape(-1, SIZE_X, SIZE_Y, COLORS)
-    x_test = np.array(test[:bar])
+    train = np.array(data[:bar]) / 255
+    train = train.reshape(-1, SIZE_X, SIZE_Y, COLORS)
+    train_targ = np.array(targ[:bar])
     
-    y_train = np.array(train[bar:size]) / 255
-    y_train = y_train.reshape(-1, SIZE_X, SIZE_Y, COLORS)
-    y_test = np.array(test[bar:size])
+    test = np.array(data[bar:size]) / 255
+    test = test.reshape(-1, SIZE_X, SIZE_Y, COLORS)
+    test_targ = np.array(targ[bar:size])
     
-    return x_train, x_test, y_train, y_test
+    return train, train_targ, test, test_targ
 
-train, test = getData(DATA_DIRECTORY, CLASS, 861)
-x_train, x_test, y_train, y_test, = split(train, test, 0.8)
+data, targ = getData(DATA_DIRECTORY, CLASS, 861)
+train, train_targ, test, test_targ = split(data, targ, 0.66)
 
-""" self made model
-model = Sequential(
-    [
-        Input(shape=(SIZE_X, SIZE_Y, 1)),
-        Conv2D(32, 3, 1, padding='valid', activation='relu'),
-        MaxPooling2D(pool_size=(2, 2)),
-        Conv2D(64, 3, 1, padding='valid', activation='relu'),
-        MaxPooling2D(pool_size=(2, 2)),
-        Conv2D(64, 3, 1, padding='valid', activation='relu'),
-        MaxPooling2D(pool_size=(2, 2)),
-        Flatten(),
-        Dense(64, activation='relu'),
-        Dense(1, activation='sigmoid'),
-    ]
-)
-#"""
-
-#"""
 base_model = InceptionV3(
     weights='imagenet',
-    #weights=None,
     include_top=False,
     input_shape=(SIZE_X, SIZE_Y, 3)
 )
@@ -95,49 +73,16 @@ base_model.trainable = False
 model = Sequential(
     [
         base_model,
-        GlobalMaxPooling2D(),
+        #GlobalMaxPooling2D(),
+        MaxPooling2D(pool_size=(2, 2)),
+        Dropout(0.2),
+        Flatten(),
+        Dense(64, activation='relu'),
+        Dense(64, activation='relu'),
+        Dense(32, activation='relu'),
         Dense(1, activation='sigmoid')
     ]
 )
-#"""
-
-"""
-base_model = ResNet50(
-    weights='imagenet',
-    #weights=None,
-    include_top=False,
-    input_shape=(SIZE_X, SIZE_Y, 3)
-)
-
-base_model.trainable = False
-
-model = Sequential(
-    [
-        base_model,
-        GlobalMaxPooling2D(),
-        Dense(1, activation='sigmoid')
-    ]
-)
-#"""
-
-"""
-base_model = VGG19(
-    weights='imagenet',
-    #weights=None,
-    include_top=False,
-    input_shape=(SIZE_X, SIZE_Y, 3)
-)
-
-base_model.trainable = False
-
-model = Sequential(
-    [
-        base_model,
-        GlobalMaxPooling2D(),
-        Dense(1, activation='sigmoid')
-    ]
-)
-#"""
         
 model.compile(
     loss='binary_crossentropy',
@@ -147,15 +92,15 @@ model.compile(
 
 model.summary()
 
-history = model.fit(x_train, x_test, epochs=5)
-loss, acc = model.evaluate(y_train, y_test)
+history = model.fit(train, train_targ, epochs=5)
+loss, acc = model.evaluate(test, test_targ)
 
 print("RESULTS:")
-title = (f"Accuracy: {round(acc, 3)}, Loss: {round(loss, 3)}\n")
+title = (f"Accuracy: {round(acc, 4)}, Loss: {round(loss, 4)}\n")
 print(title)
 
 plt.plot(history.history['accuracy'], label='accuracy')
 plt.title(title)
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
-plt.show()
+# plt.show()
