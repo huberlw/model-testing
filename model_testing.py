@@ -10,9 +10,9 @@ import sys
 import os
 
 DATA_DIRECTORY = "./data"
-CLASS = ["interesting", "not"]
+CLASS = ["bobcat", "coyote", "deer", "elk", "human", "not", "raccoon", "weasel"]
 
-SIZE_X = 200
+SIZE_X = 100
 SIZE_Y = 150
 COLORS = 3
 
@@ -58,7 +58,7 @@ def split(data, targ, percent=0.66):
     
     return train, train_targ, test, test_targ
 
-data, targ = getData(DATA_DIRECTORY, CLASS, 861)
+data, targ = getData(DATA_DIRECTORY, CLASS)
 train, train_targ, test, test_targ = split(data, targ, 0.66)
 
 base_model = InceptionV3(
@@ -73,25 +73,25 @@ model = Sequential(
     [
         base_model,
         #GlobalMaxPooling2D(),
-        MaxPooling2D(pool_size=(2, 2)),
+        MaxPooling2D(pool_size=(2, 2), padding="same"),
         Dropout(0.2),
         Flatten(),
         Dense(64, activation='relu'),
         Dense(64, activation='relu'),
         Dense(32, activation='relu'),
-        Dense(1, activation='sigmoid')
+        Dense(8, activation='softmax')
     ]
 )
         
 model.compile(
-    loss='binary_crossentropy',
+    loss='sparse_categorical_crossentropy',
     optimizer='adam',
     metrics=['accuracy']
 )
 
 model.summary()
 
-history = model.fit(train, train_targ, epochs=5)
+history = model.fit(train, train_targ, epochs=20)
 loss, acc = model.evaluate(test, test_targ)
 
 print("RESULTS:")
