@@ -1,0 +1,20 @@
+Model: InceptionV3
+Epochs: 20
+Acc: 0.9439560174942017
+
+Model: ResNet50
+Epochs: 20
+Acc: 0.6714285612106323
+
+Model: Xception
+Epochs: 20
+Acc: 0.9456043839454651
+
+Model: VGG16
+Epochs: 20
+Acc: 0.7906593680381775
+
+Model: VGG19
+Epochs: 20
+Acc: 0.7604395747184753
+

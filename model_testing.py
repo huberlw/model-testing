@@ -1,6 +1,10 @@
 from keras.layers import Input, Conv2D, GlobalMaxPooling2D, MaxPooling2D, Dense, Flatten, Dropout
 from keras.models import Sequential
 from keras.applications.inception_v3 import InceptionV3
+from keras.applications.resnet import ResNet50
+from keras.applications.xception import Xception
+from keras.applications.vgg16 import VGG16
+from keras.applications.vgg19 import VGG19
 import matplotlib.pyplot as plt
 from sklearn.utils import shuffle
 import numpy as np
@@ -12,8 +16,8 @@ import os
 DATA_DIRECTORY = "./data"
 CLASS = ["bobcat", "coyote", "deer", "elk", "human", "not", "raccoon", "weasel"]
 
-SIZE_X = 100
-SIZE_Y = 150
+SIZE_X = 300
+SIZE_Y = 225
 COLORS = 3
 
 def getData(dir, classes, max_imgs=sys.maxsize):
@@ -61,7 +65,7 @@ def split(data, targ, percent=0.66):
 data, targ = getData(DATA_DIRECTORY, CLASS)
 train, train_targ, test, test_targ = split(data, targ, 0.66)
 
-base_model = InceptionV3(
+base_model = VGG19(
     weights='imagenet',
     include_top=False,
     input_shape=(SIZE_X, SIZE_Y, 3)
@@ -72,17 +76,26 @@ base_model.trainable = False
 model = Sequential(
     [
         base_model,
-        #GlobalMaxPooling2D(),
-        MaxPooling2D(pool_size=(2, 2), padding="same"),
-        Dropout(0.2),
-        Flatten(),
-        Dense(64, activation='relu'),
-        Dense(64, activation='relu'),
-        Dense(32, activation='relu'),
+        GlobalMaxPooling2D(),
         Dense(8, activation='softmax')
     ]
 )
-        
+
+"""model = Sequential(
+    [
+        Input(shape=(SIZE_X, SIZE_Y, COLORS)),
+        Conv2D(32, 3, 1, padding='same', activation='relu'),
+        Conv2D(64, 3, 1, padding='same', activation='relu'),
+        MaxPooling2D(pool_size=(2, 2)),
+        Conv2D(64, 3, 1, padding='same', activation='relu'),
+        #Conv2D(256, 3, 1, padding='same', activation='relu'),
+        MaxPooling2D(pool_size=(2, 2)),
+        Flatten(),
+        Dense(128, activation='relu'),
+        Dense(8, activation='softmax')
+    ]
+)"""
+
 model.compile(
     loss='sparse_categorical_crossentropy',
     optimizer='adam',
@@ -98,8 +111,12 @@ print("RESULTS:")
 title = (f"Accuracy: {round(acc, 4)}, Loss: {round(loss, 4)}\n")
 print(title)
 
-plt.plot(history.history['accuracy'], label='accuracy')
+f = open("ModelTestingData.txt", 'a')
+f.write(f"Model: VGG19\nEpochs: 20\nAcc: {acc}\n\n")
+f.close()
+    
+"""plt.plot(history.history['accuracy'], label='accuracy')
 plt.title(title)
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
-# plt.show()
+plt.show()"""
